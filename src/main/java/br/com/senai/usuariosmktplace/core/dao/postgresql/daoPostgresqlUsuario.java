@@ -17,8 +17,6 @@ public class daoPostgresqlUsuario implements DaoUsuario {
 								+ "SET nome = ?, senha = ? "
 								+ "WHERE login = ?";
 	
-	private final String DELETE = "DELETE usuarios WHERE login = ?";
-	
 	private final String SELECT_BY_LOGIN = "SELECT u.login, u.nome, u.senha "
 										+ "FROM usuarios u "
 										+ "WHERE login = ?";
@@ -129,3 +127,4 @@ public class daoPostgresqlUsuario implements DaoUsuario {
 	}
 
 }
+
