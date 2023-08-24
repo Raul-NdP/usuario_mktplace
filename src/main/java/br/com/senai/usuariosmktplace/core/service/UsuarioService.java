@@ -2,10 +2,15 @@ package br.com.senai.usuariosmktplace.core.service;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 import br.com.senai.usuariosmktplace.core.dao.DaoUsuario;
 import br.com.senai.usuariosmktplace.core.dao.FactoryDao;
@@ -19,57 +24,64 @@ public class UsuarioService {
 		dao = FactoryDao.getInstance().getDaoUsuario();
 	}
 	
-	public void inserir(Usuario usuario) {
+	public Usuario criarPor(String nomeCompleto, String senha) { 
+		
+		this.validar(nomeCompleto, senha);
+		String login = gerarLoginPor(nomeCompleto);
+		String senhaCriptografada = gerarHashDa(senha);
+		
+		Usuario usuario = new Usuario(login, senhaCriptografada, nomeCompleto);
+		
+		this.dao.inserir(usuario);
+		
+		Usuario usuarioSalvo = dao.buscarPor(login);
+		
+		return usuarioSalvo;
 		
 	}
 	
-	public void alterar(Usuario usuario) {
+	@SuppressWarnings("deprecation")
+	private void validar(String senha) {
+		
+		boolean isSenhaValida = !Strings.isNullOrEmpty(senha)
+				&& senha.length() >= 6
+				&& senha.length() <= 15;
+		
+		Preconditions.checkArgument(isSenhaValida, "A senha é obrigatória "
+				+ "e deve possuir entre 6 e 15 caracteres");
+		
+		boolean isContemLetra = CharMatcher.inRange('a','z').countIn(senha.toLowerCase()) > 0;
+		boolean isContemNumero = CharMatcher.inRange('0','9').countIn(senha) > 0;
+		boolean isCaracterInvalido = !CharMatcher.javaLetterOrDigit().matchesAllOf(senha);
+		
+		Preconditions.checkArgument(!isCaracterInvalido && isContemLetra && isContemNumero, 
+				"A senha deve possuir somente e obrigatoriamente letras e números");
 		
 	}
 	
-	public Usuario buscarPor(String login) {
+	private void validar(String nomeCompleto, String senha) {
 		
-		return null;
+		List<String> partesNome = fracionar(nomeCompleto);
+		
+		boolean isNomeCompleto = partesNome.size() > 1;
+		
+		boolean isNomeValido = !Strings.isNullOrEmpty(nomeCompleto) 
+				&& isNomeCompleto
+				&& nomeCompleto.length() >= 5 && nomeCompleto.length() <= 120;
+				
+		Preconditions.checkArgument(isNomeValido, "o nome é obrigatório, deve possuir entre 5 e 120 caracteres e deve possuir sobrenome também");
+		
+		this.validar(senha);
 		
 	}
 	
-	public void validar(Usuario usuario) {
-		if (usuario != null) {
-			
-			boolean isNomeInvalido = usuario.getNomeCompleto() == null;
-			
-			if (isNomeInvalido) {
-				throw new IllegalArgumentException("O nome é obrigatório");
-			}
-			
-			boolean isLoginInvalido = usuario.getLogin() == null
-					|| usuario.getLogin().length() < 5
-					|| usuario.getLogin().length() > 50;
-			
-			if (isLoginInvalido) {
-				throw new IllegalArgumentException("O login é obrigatório e deve possuir entre 5 e 50 caracteres");
-			}
-			
-			boolean isSenhaeInvalida = usuario.getSenha() == null
-					|| usuario.getSenha().length() < 6
-					|| usuario.getSenha().length() > 15;
-			
-			if (isSenhaeInvalida) {
-				throw new IllegalArgumentException("A senha é obrigatória e deve possuir entre 6 e 15 caracteres");
-			}
-			
-		} else {
-			throw new NullPointerException("O usuário não pode ser nulo");
-		}
-	}
-	
-	public String removerAcentoDo(String nomeCompleto) {
+	private String removerAcentoDo(String nomeCompleto) {
 		
 		return Normalizer.normalize(nomeCompleto, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
 		
 	}
 	
-	public List<String> fracionar(String nomeCompleto) {
+	private List<String> fracionar(String nomeCompleto) {
 		
 		List<String> nomeFracionado = new ArrayList<String>();
 		
@@ -92,7 +104,7 @@ public class UsuarioService {
 		return nomeFracionado;
 	}
 	
-	public String gerarLoginPor(String nomeCompleto) {
+	private String gerarLoginPor(String nomeCompleto) {
 		
 		nomeCompleto = this.removerAcentoDo(nomeCompleto);
 		List<String> partesNome = this.fracionar(nomeCompleto);
@@ -122,9 +134,9 @@ public class UsuarioService {
 		return loginGerado;
 	}
 	
-	public String gerarHashDa(String senha) {
+	private String gerarHashDa(String senha) {
 		
-		return new DigestUtils(MessageDigestAlgorithms.MD5).digestAsHex(senha);
+		return new DigestUtils(MessageDigestAlgorithms.SHA3_256).digestAsHex(senha);
 		
 	}
 	
