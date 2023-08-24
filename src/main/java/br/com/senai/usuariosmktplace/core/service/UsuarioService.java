@@ -2,7 +2,6 @@ package br.com.senai.usuariosmktplace.core.service;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -85,7 +84,9 @@ public class UsuarioService {
 		
 		List<String> nomeFracionado = new ArrayList<String>();
 		
-		if (nomeCompleto != null && !nomeCompleto.isBlank()) {
+		if (!Strings.isNullOrEmpty(nomeCompleto)) {
+			
+			nomeCompleto = nomeCompleto.trim();
 			
 			String[] partesNome = nomeCompleto.split(" ");
 			
