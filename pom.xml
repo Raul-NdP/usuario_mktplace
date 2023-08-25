@@ -10,12 +10,12 @@
 		    <version>42.6.0</version>
 		</dependency>
 		<dependency>
-<<<<<<< HEAD
 		    <groupId>org.projectlombok</groupId>
 		    <artifactId>lombok</artifactId>
 		    <version>1.18.28</version>
 		    <scope>provided</scope>
-=======
+		</dependency>
+		<dependency>
 		    <groupId>commons-codec</groupId>
 		    <artifactId>commons-codec</artifactId>
 		    <version>1.16.0</version>
@@ -24,7 +24,6 @@
 		    <groupId>com.google.guava</groupId>
 		    <artifactId>guava</artifactId>
 		    <version>32.1.2-jre</version>
->>>>>>> feature/novo-usuario
 		</dependency>
 	</dependencies>
 	<build>    
