@@ -67,6 +67,18 @@ public class UsuarioService {
 		
 	}
 	
+	public Usuario buscarPor(String login) {
+		
+		Preconditions.checkArgument(!Strings.isNullOrEmpty(login), "O login é obrigatório");
+		
+		Usuario usuarioEncontrado = this.dao.buscarPor(login);
+		
+		Preconditions.checkNotNull(usuarioEncontrado, "Não foi encontrado usuário vinculado ao login informado");
+		
+		return usuarioEncontrado;
+		
+	}
+	
 	@SuppressWarnings("deprecation")
 	private void validar(String senha) {
 		
