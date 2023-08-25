@@ -2,7 +2,6 @@ package br.com.senai.usuariosmktplace.core.service;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -113,7 +112,9 @@ public class UsuarioService {
 		
 		List<String> nomeFracionado = new ArrayList<String>();
 		
-		if (nomeCompleto != null && !nomeCompleto.isBlank()) {
+		if (!Strings.isNullOrEmpty(nomeCompleto)) {
+			
+			nomeCompleto = nomeCompleto.trim();
 			
 			String[] partesNome = nomeCompleto.split(" ");
 			
@@ -143,8 +144,13 @@ public class UsuarioService {
 		if (!partesNome.isEmpty()) {
 			for (int i = 1; i < partesNome.size(); i++) {
 				loginGerado = partesNome.get(0) + "." + partesNome.get(i);
+				if (loginGerado.length() > 40) {
+					loginGerado = loginGerado.substring(0, 40);
+				}
+				
 				usuarioEncontrado = dao.buscarPor(loginGerado);
 				if (usuarioEncontrado == null) {
+					
 					return loginGerado;
 				}
 			}
